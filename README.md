@@ -49,7 +49,7 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 ## 🖼️ Results
 QualitativeResults
 <p align="center">
-  <img width="1380" height="480" src="./figs/QualitativeResults.jpg">
+  <img src="./figs/QualitativeResults.jpg">
 </p>
 
 ## 🎫 License
