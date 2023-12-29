@@ -30,7 +30,7 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 ## 🗓️ TODO
 - [ Done] Contrastive learning based pre-training part 
 <p align="center">
-  <img width="730" height="480" src="./figs/cluster.jpg">
+  <img width="730" height="480" src="./figs/cluster.png">
 </p>
 
 - [ Done] Pseudo-label underselection Module with Graph Contrastive Learning
