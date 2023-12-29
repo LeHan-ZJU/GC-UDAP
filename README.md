@@ -13,7 +13,7 @@ Le Han<sup>1*</sup>, &nbsp;
  
  ## 🚀 Overview
 <p align="center">
-  <img src="./figs/architecture7.png">
+  <img src="./figs/architecture.png">
 </p>
 
 ## 📖 Description
@@ -30,7 +30,7 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 ## 🗓️ TODO
 - [ Done] Contrastive learning based pre-training part 
 <p align="center">
-  <img width="730" height="480" src="./figs/loss_acc.jpg">
+  <img width="730" height="480" src="./figs/cluster.jpg">
 </p>
 
 - [ Done] Pseudo-label underselection Module with Graph Contrastive Learning
