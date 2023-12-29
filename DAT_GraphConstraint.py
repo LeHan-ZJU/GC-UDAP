@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-import sys
 import math
 import numpy as np
 import torch
@@ -16,13 +15,10 @@ from GCN.gcn import Net
 
 from Models.eval_pose import eval_net_s2_update
 from Models.ContrastModel import ContrastNet1_MultiA, ResSelf_pre
-from Loss.GraphLoss import graph_contrative_loss
 from Loss.ContrastiveLoss import self_contrative_loss, self_contrative_meanloss
-from Tools.process import Combine_csv
-from Tools.inference_block import inference_PoseNet
 
 from utils.dataset_csv import DatasetStage2_iteration
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import random_split
 
 torch.distributed.init_process_group(backend="nccl")
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1, 2, 3'
@@ -51,48 +47,19 @@ def get_args():
     parser.add_argument('-b', '--batch', metavar='B', dest='batch', type=int, nargs='?', default=6, help='Batch size')
     parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=1e-5, dest='lr',
                         help='Learning rate')
-    parser.add_argument('-f', '--load', dest='load', type=str,  # default=False,
-                        default='./TrainedModels/ContrastiveModels/train_ResSelf_s2_GraphConstrint/training_paralle_GCNv2/CP_epoch30.pth',
-                        help='Load model from a .pth file')
+    parser.add_argument('-f', '--load', dest='load', type=str, default=False, help='Load model from a .pth file')
     parser.add_argument('-w', '--weight', dest='weight', type=float, default=0, help='the weight of similar loss')
     parser.add_argument('-v', '--validation', dest='val', type=float, default=5.0,
                         help='Percent of the data that is used as validation (0-100)')
-    parser.add_argument('-s', '--source_label', dest='source_label', type=str,
-                        default='/8T/hanle/Datasets/RatPose/label/RatPoseLabels/RatPoseAll_indoor_trainval.csv',
-                        # default='/8T/hanle/Datasets/RatPose/label/RatPoseLabels/RatPoseAll_indoor_crop_v2_trainval.csv',
-                        # default='/8T/hanle/Datasets/RatPose/label/RatPoseLabels/VerticalTilt_crop_v2_trainval.csv',
-                        # default='/8T/hanle/Datasets/RatPose/label/RatPoseLabels/Vertical_Indoor_label_new_crop_v2_trainval.csv',
-                        # default='/8T/hanle/Datasets/TigDog/behaviorDiscovery2.0/landmarks/tiger/tiger_trainval.csv',
-                        # default='/8T/hanle/Datasets/TigDog/behaviorDiscovery2.0/landmarks/tiger/tiger_trainval.csv',
-                        help='Label path of source image label')
-    parser.add_argument('-t', '--target_label', dest='target_label', type=str,
-                        default='./results/pretrain_ResSelf/debug1/VerticalTilt_all_GCNv2/debuggraph_refine/Right/Pesudo-label3.csv',
-                        help='Label path of source image label')
-    parser.add_argument('-tu', '--target_unlabel', dest='target_unlabel', type=str,
-                        default='./results/pretrain_ResSelf/debug1/VerticalTilt_all_GCNv2/debuggraph_refine/Right/noPesudo-label.csv',
-                        help='Label path of source image label')
-    parser.add_argument('-i', '--imgs', dest='Imgs', type=str,
-                        # default='/8T/hanle/Datasets/TigDog/behaviorDiscovery2.0/',
-                        default='/8T/hanle/Datasets/RatPose/all/',
-                        help='File path of images')
-    parser.add_argument('-pb', '--path_backbone', dest='path_backbone', type=str,
-                        default='./TrainedModels/ContrastiveModels/pretrain_ResSelf/debug1/Resnet50_epoch300.pth',
-                        help='the path of backbone')
-    parser.add_argument('-pt', '--path_transformer', dest='path_transformer', type=str,
-                        default='./TrainedModels/ContrastiveModels/pretrain_ResSelf/debug1/TransformerPart_epoch300.pth',
-                        help='the path of transformer part')
-    parser.add_argument('-ph', '--path_head', dest='path_head', type=str,
-                        default='./TrainedModels/ContrastiveModels/pretrain_ResSelf/debug1/PoseHead_epoch300.pth',
-                        help='the path of head part')
-    parser.add_argument('--graph_model', '-g',
-                        default='./GCNv2/TrainedGCN/Rat/RatPoseAll_indoor_noise0005_neg07/CP_epoch300.pth',
-                        # default='./GCN/TrainedGCN/model1_Vertical_noise0005_neg07/CP_epoch300.pth',
-                        # default='./GCN/TrainedGCN/RegModel1_Vertical_noise0005_neg07/CP_epoch300.pth',
-                        # default='./GCN/TrainedGCN/3classes/Reg_Vertical_noise0005_neg07/CP_epoch200.pth',
-                        metavar='FILE', help="Specify the file in which the model is stored")
-    parser.add_argument('-d', '--dir_checkpoint', dest='ckp', type=str,
-                        default='./TrainedModels/ContrastiveModels/train_ResSelf_s2_GraphConstrint/training_paralle_GCNv2/',
-                        help='Saved model path')
+    parser.add_argument('-s', '--source_label', dest='source_label', type=str, default='', help='Label path of source image label')
+    parser.add_argument('-t', '--target_label', dest='target_label', type=str, default='', help='Label path of source image label')
+    parser.add_argument('-tu', '--target_unlabel', dest='target_unlabel', type=str, default='', help='Label path of source image label')
+    parser.add_argument('-i', '--imgs', dest='Imgs', type=str, default='', help='File path of images')
+    parser.add_argument('-pb', '--path_backbone', dest='path_backbone', type=str, default='', help='the path of backbone')
+    parser.add_argument('-pt', '--path_transformer', dest='path_transformer', type=str, default='', help='the path of transformer part')
+    parser.add_argument('-ph', '--path_head', dest='path_head', type=str, default='',  help='the path of head part')
+    parser.add_argument('--graph_model', '-g', default='', metavar='FILE', help="Specify the file in which the model is stored")
+    parser.add_argument('-d', '--dir_checkpoint', dest='ckp', type=str, default='', help='Saved model path')
     parser.add_argument("--local_rank", type=int, default=0,
                         help="number of cpu threads to use during batch generation")
     return parser.parse_args()

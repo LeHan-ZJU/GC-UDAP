@@ -191,28 +191,19 @@ def get_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-b', '--batch', metavar='B', type=int, nargs='?', default=1, help='Batch size', dest='batch')
 
-    parser.add_argument('--model', '-m',
-                        default='./TrainedModels/ContrastiveModels/Center_TigDog/ContrastTigDog_ht/CP_epoch500.pth',
+    parser.add_argument('--model', '-m', default='',
                         metavar='FILE', help="Specify the file in which the model is stored")
-    parser.add_argument('--graph_model', '-g',
-                        default='E:/Codes/Mine/WDA/GCN/TrainedGCN/model1_HorseTiger_noise0011_neg06/CP_epoch600.pth',
+    parser.add_argument('--graph_model', '-g', default='',
                         metavar='FILE', help="Specify the file in which the model is stored")
-    parser.add_argument('-p', '--path_backbone', dest='path_backbone', type=str,
-                        # default='./TrainedModels/ContrastiveModels/GAN/GAN_cam_Vertical_lr0005/generator_epoch2.pth',
-                        # default='./TrainedModels/ContrastiveModels/center/ContrastCenter_SS/CP_epoch500.pth',
+    parser.add_argument('-p', '--path_backbone', dest='path_backbone', type=str, default='',
                         help='the path of backbone')
-    parser.add_argument('-f', '--target-img', dest='target', type=str,
-                        # default='D:/Data/Pose/TigDog/behaviorDiscovery2.0/landmarks/horse/horse_test.csv',
-                        default='D:/Data/Pose/TigDog/behaviorDiscovery2.0/landmarks/tiger/tiger_test.csv',
+    parser.add_argument('-f', '--target-img', dest='target', type=str, default='',
                         help='Label path of target images')
-    parser.add_argument('-t', '--source-path', dest='source', type=str,
-                        default='D:/Data/Pose/TigDog/behaviorDiscovery2.0/landmarks/horse/horse_test.csv',
-                        # default='D:/Data/Pose/TigDog/behaviorDiscovery2.0/landmarks/tiger/tiger_test.csv',
+    parser.add_argument('-t', '--source-path', dest='source', type=str, default='',
                         help='Label path of source image label')
-    parser.add_argument('-i', '--img_dir', default='D:/Data/Pose/TigDog/behaviorDiscovery2.0/',
+    parser.add_argument('-i', '--img_dir', default='',
                         metavar='INPUT', nargs='+', help='filenames of input images')
-    parser.add_argument('-o', '--output',
-                        default='./results/ContrastiveModels/Center_TigDog/ContrastTigDog_ht/test_ST2/',
+    parser.add_argument('-o', '--output', default='',
                         metavar='OUTPUT', nargs='+', help='Filenames of ouput images')
     parser.add_argument('-c', '--channel', default=19,
                         metavar='CHANNEL', nargs='+', help='Number of key points')
