@@ -80,7 +80,7 @@ def train_net(model,
               val_percent=0.1,
               save_cp=True,
               augment=0,
-              angle=math.pi):   # scale是输入与输出的边长比
+              angle=math.pi):
 
     dataset = DatasetStage2_iteration(resize_w, resize_h, dir_img, source_label, target_label, target_unlabel, num_points, scale=4, angle=angle)
     n_val = int(len(dataset) * val_percent)
@@ -93,8 +93,6 @@ def train_net(model,
     val_sampler = torch.utils.data.distributed.DistributedSampler(val)
     val_loader = torch.utils.data.DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=8,
                                              pin_memory=True, sampler=val_sampler)
-    # train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
-    # val_loader = DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True, drop_last=True)
 
     global_step = 0
 
@@ -109,11 +107,8 @@ def train_net(model,
     ''')
 
     optimizer = optim.AdamW(net.parameters(), lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)   # 每隔50个epoch降一次学习率（*0.1）
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1) 
 
-    # criterion = nn.MSELoss()
-    # criterion_graph = graph_contrative_loss(Graph_model, num_points, device)
-    # criterion_self = self_contrative_loss(Graph_model, num_points, device, angle=angle)
     criterion_self = self_contrative_meanloss(Graph_model, num_points, device, angle=angle)
 
     val_score_min = 1
@@ -164,7 +159,6 @@ def train_net(model,
                                                    self_contrative_loss, angle, Device)
                     logging.info('Validation loss: {}'.format(val_score))
 
-        # 保存best模型
         if dist.get_rank() == 0 and val_score < val_score_min:
             val_score_min = val_score
             print("save model. val_score = ", val_score)
@@ -174,13 +168,11 @@ def train_net(model,
             torch.save(model.module.PoseHead.state_dict(), dir_checkpoint + f'PoseHead_best.pth')
             print('Best epoch:', epoch + 1)
 
-        scheduler.step()  # 学习率衰减
+        scheduler.step()
         print('epoch:', epoch + 1, ' loss:', loss.item())
         loss_all[0, epoch] = epoch + 1
         loss_all[1, epoch] = loss.item()
 
-        # if save_cp:
-        # if dist.get_rank() == 0 and (epoch + 1) % epochs == 0:
         if dist.get_rank() == 0 and (epoch + 1) % 3 == 0:
             try:
                 os.mkdir(dir_checkpoint)
@@ -197,7 +189,6 @@ def train_net(model,
                        dir_checkpoint + f'PoseHead_epoch{epoch + 1}.pth')
             logging.info(f'Checkpoint {epoch + 1} saved !')
 
-        # 输出当前学习率
         for param_group in optimizer.param_groups:
             print('Lr of optimizer:', param_group['lr'])
 
@@ -221,33 +212,28 @@ if __name__ == '__main__':
     print('source:', args.source_label, '; target:', args.target_label)
 
     isExists = os.path.exists(args.ckp)
-    if not isExists:  # 判断结果
+    if not isExists:
         os.makedirs(args.ckp)
 
-    # 图网络
     GraphNet = Net(8, reg=False).to(device=device)
     GraphNet.load_state_dict(torch.load(args.graph_model, map_location=device), strict=False)
     logging.info("Graph model loaded !")
 
-    # 构建网络
     net = ContrastNet1_MultiA(args, extract_list, device, train=True, nof_joints=num_points)
     net.to(device=device)
-    # 多卡并行
     net = torch.nn.parallel.DistributedDataParallel(net, device_ids=[local_rank], output_device=local_rank,
                                                     find_unused_parameters=True)
 
     if args.load:
         print(args.load)
         net.load_state_dict(
-            torch.load(args.load, map_location=device), strict=False   #strict，该参数默认是True，表示预训练模型的层和自己定义的网络结构层严格对应相等（比如层名和维度）
+            torch.load(args.load, map_location=device), strict=False
         )
         logging.info(f'Model loaded from {args.load}')
         print('Pretrained weights have been loaded!')
     else:
         print('No pretrained models have been loaded except the backbone!')
-    # print(net)
 
-    # faster convolutions, but more memory
     cudnn.benchmark = True
 
     pesudo_label_dir = args.target_label
@@ -269,13 +255,3 @@ if __name__ == '__main__':
                          val_percent=args.val / 100,
                          augment=args.augment,
                          angle=args.angle * math.pi / 180)
-
-    # #  绘制loss曲线
-    plt.plot(loss_all[0, :], loss_all[2, :], color='b')  # 绘制mse loss曲线
-    plt.xlabel("epochs", fontsize=12)
-    plt.ylabel("loss", fontsize=12)
-    plt.savefig(args.ckp + 'loss.jpg')
-    save_path_loss = args.ckp + 'loss_.npy'
-    np.save(save_path_loss, loss_all)
-    plt.close()
-
