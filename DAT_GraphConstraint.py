@@ -86,7 +86,6 @@ def train_net(model,
     n_val = int(len(dataset) * val_percent)
     n_train = len(dataset) - n_val
     train, val = random_split(dataset, [n_train, n_val])
-    # 并行
     train_sampler = torch.utils.data.distributed.DistributedSampler(train)
     train_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=8,
                                                pin_memory=True, sampler=train_sampler)
