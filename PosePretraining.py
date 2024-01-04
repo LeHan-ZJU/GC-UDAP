@@ -23,7 +23,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 num_points = 6
 
 resize_w = 640
-resize_h = 480  # 128 64 32 16 8
+resize_h = 480
 extract_list = ["layer4"]
 
 
@@ -72,7 +72,7 @@ def train_net(model,
               val_percent=0.1,
               save_cp=True,
               img_scale=1,
-              augment=0):   # scale是输入与输出的边长比
+              augment=0):
 
     dataset = DatasetPoseCSV(resize_w, resize_h, dir_img, dir_label, img_scale, num_points)
 
@@ -96,11 +96,11 @@ def train_net(model,
     ''')
 
     optimizer = optim.Adam(net.parameters(), lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)   # 每隔50个epoch降一次学习率（*0.1）
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
 
     criterion = nn.MSELoss()
     val_score_min = 1
-    loss_all = np.zeros([4, epochs])   # 4*epochs大小的矩阵，第一行存epochs序号数，第二行为每个epoch的总loss，第三行为mse loss，第四行为similarloss
+    loss_all = np.zeros([4, epochs])
     for epoch in range(epochs):
 
         model.train()
@@ -134,7 +134,6 @@ def train_net(model,
                     val_score = eval_net(model, val_loader, Device)
                     logging.info('Validation loss: {}'.format(val_score))
 
-                    # 保存best模型
                     if val_score < val_score_min:
                         val_score_min = val_score
                         print("save model. val_score = ", val_score)
@@ -147,7 +146,7 @@ def train_net(model,
                         torch.save(model.PoseHead.state_dict(),
                                    dir_checkpoint + f'PoseHead_best_epoch{epoch + 1}.pth')
 
-        scheduler.step()  # 学习率衰减
+        scheduler.step()
         print('epoch:', epoch + 1, ' loss:', loss.item())
         loss_all[0, epoch] = epoch + 1
         loss_all[1, epoch] = loss.item()
@@ -165,7 +164,6 @@ def train_net(model,
                        dir_checkpoint + f'Resnet50_epoch{epoch + 1}.pth')
             logging.info(f'Checkpoint {epoch + 1} saved !')
 
-        # 输出当前学习率
         for param_group in optimizer.param_groups:
             print('Lr of optimizer:', param_group['lr'])
 
@@ -184,10 +182,9 @@ if __name__ == '__main__':
     print('trainset:', args.dir_label)
 
     isExists = os.path.exists(args.ckp)
-    if not isExists:  # 判断结果
+    if not isExists:
         os.makedirs(args.ckp)
 
-    # 构建网络
     net = ResSelf_pre(args, extract_list, device, train=True, nof_joints=num_points)
     stat(net, input_size=(3, 640, 480))
 
