@@ -65,18 +65,18 @@ def predict_img(net,
 
 def heatmap_to_points(Img, heatmap, numPoints, ori_W, ori_H):
     Img = cv2.resize(Img, (ori_W, ori_H))
-    keyPoints = np.zeros([numPoints, 2])  # 第一行为y（对应行数），第二行为x（对应列数）
+    keyPoints = np.zeros([numPoints, 2])
     # Img = cv2.resize(Img, (resize_w // 4, resize_h // 4))
     for j in range(numPoints):
         hm = cv2.resize(heatmap[j, :, :], (ori_W, ori_H))
         # hm = heatmap[j, :, :]
         mx = np.max(hm)
         if mx > 0.059:  # 0.075paper
-            center = np.unravel_index(np.argmax(hm), hm.shape)   # 寻找最大值点
+            center = np.unravel_index(np.argmax(hm), hm.shape)
             # print('center:', center)
             keyPoints[j, 0] = center[1]   # X
             keyPoints[j, 1] = center[0]   # Y
-            # cv2.circle(Img, (center[1], center[0]), 1, (0, 0, 255), 2)  # 画出heatmap点重心
+            # cv2.circle(Img, (center[1], center[0]), 1, (0, 0, 255), 2)
     return keyPoints
 
 
@@ -118,14 +118,13 @@ def draw_relation2(Img, allPoints, relations):  # 640*480
             cv2.line(Img, (c_x1, c_y1), (c_x2, c_y2), (0, 255, 0), 2)
     r = np.arange(50, 255, int(205/len(allPoints)))
 
-    for j in range(len(allPoints)):  # 在原图中画出关键点
+    for j in range(len(allPoints)):
         cv2.circle(Img, (int(allPoints[j, 0] * (640/320)), int(allPoints[j, 1] * (480/256))), 2,
                    [int(r[len(allPoints) - j]), 20, int(r[j])], 2)
     return Img
 
 
 def read_labels(label_dir):
-    # 读标签
     with open(label_dir, 'r') as f:
         reader = csv.reader(f)
         labels = list(reader)
@@ -135,8 +134,7 @@ def read_labels(label_dir):
 
 
 def img_augmentation(image):
-    return cv2.flip(image, 1)  # 翻转 0表示上下，正数表示左右，负数表示上下左右都翻转
-
+    return cv2.flip(image, 1)
 
 def inference(net,
               source_img,
@@ -167,7 +165,6 @@ def graph_inference(GNN, points1, points2, num_pointsnum_points):
     x[0:2, 0:num_points] = points1.T
     x[0:2, num_points:] = points2.T
 
-    # 计算夹角
     angles1 = Angle_relation(x[0:2, 0:num_points], edge_index.T, num_points)
     angles2 = Angle_relation(x[0:2, num_points:], edge_index.T, num_points)
     x[2, 0:num_points] = angles1
@@ -218,23 +215,20 @@ if __name__ == "__main__":
     out_files = args.output
     num_points = args.channel
     isExists = os.path.exists(out_files)
-    if not isExists:  # 判断结果
+    if not isExists:
         os.makedirs(out_files)
 
     resize_w = 320
     resize_h = 256
     extract_list = ["layer4"]
-    if num_points == 14:
-        keypoints = ['Right_ankle', 'Right_knee', 'Right_hip', 'Left_hip', 'Left_knee', 'Left_ankle',  'Right_wrist',
-              'Right_elbow', 'Right_shoulder', 'Left_shoulder', 'Left_elbow', 'Left_wrist', 'Neck', 'Head_top']  # LSP
-    elif num_points == 17:
-        keypoints = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder',
-                     'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip',
-                     'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
-    elif num_points == 6:
+
+    if num_points == 6:
         keypoints = ['rRP', 'lRP', 'rFP', 'lFP', 'tail_root', 'head']
         relation = [[1, 4], [1, 5], [2, 3], [2, 5], [3, 6], [4, 6]]
-
+    elif num_points == 10:
+        keypoints = ['rRP', 'lRP', 'rFP', 'lFP', 'tail_root', 'head', 'neck', 'spine', 'tail_middle', 'tail_end']
+        relation = [[1, 5], [1, 8], [1, 7], [2, 5], [2, 7], [2, 8], [3, 7], [3, 6],
+                    [4, 6], [4, 7], [5, 8], [7, 8], [5, 9], [9, 10]]
     elif num_points == 19:
         keypoints = ['leftEye', 'rightEye', 'chin', 'frontLeftHoof', 'frontRightHoof', 'backLeftHoof', 'backRightHoof'
                      'tailStart', 'frontLeftKnee', 'frontRightKnee', 'backLeftKnee', 'backRightKnee', 'leftShoulder',
@@ -242,7 +236,6 @@ if __name__ == "__main__":
         relation = [[0, 2], [0, 18], [1, 2], [1, 18], [3, 8], [4, 9], [5, 10], [6, 11], [7, 12], [7, 13], [7, 16],
                     [7, 17], [8, 14], [9, 15], [10, 16], [11, 17], [12, 14], [12, 18], [13, 15], [13, 18]]
 
-    # 构建网络
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
     # net = ContrastNet0(None, extract_list, device, in_channel=3, nof_joints=num_points, train=False)
@@ -250,44 +243,32 @@ if __name__ == "__main__":
     net = ContrastNet_center(None, extract_list, device, in_channel=3, nof_joints=num_points, train=False)
     logging.info("Loading model {}".format(args.model))
     net.to(device=device)
-    # 加载网络权重
     net.load_state_dict(torch.load(args.model, map_location=device), strict=False)
     logging.info("Model loaded !")
 
-    # 图网络
     GraphNet = Net(8).to(device=device)
     GraphNet.load_state_dict(torch.load(args.graph_model, map_location=device), strict=False)
     logging.info("Graph model loaded !")
 
-    # stage2阶段先加载RatNet在前面训练好的权重，然后再加载GAN训练的resnetnet部分权重
-    # net.SubResnet.load_state_dict(torch.load(args.path_backbone, map_location=device), strict=False)
-    # net.ResnetCam.SubResnet.load_state_dict(torch.load(args.path_backbone, map_location=device), strict=False)
-    # net.ResnetCam.load_state_dict(torch.load(args.path_backbone, map_location=device), strict=False)
-    # print('Pretrained generator weights have been loaded!')
-
-    # 读取测试数据列表
-    labels, imgs_num = read_labels(args.source)  # 读取标签
+    labels, imgs_num = read_labels(args.source)
     target_labels, target_num = read_labels(args.target)
 
-    points_all_gt = np.zeros([imgs_num - 1, num_points + 2, 2])  # 存放所有人的所有关键点标签
-    points_all_pred = np.zeros([imgs_num - 1, num_points, 2])  # 存放检测到的所有关键点
+    points_all_gt = np.zeros([imgs_num - 1, num_points + 2, 2])
+    points_all_pred = np.zeros([imgs_num - 1, num_points, 2])
     time_all = 0
     for k in range(1, imgs_num):
-        # 读取图像
         img_path = labels[k][0]
         fn = os.path.join(in_files + img_path)
 
         img0 = cv2.imread(fn)
-        imgf = cv2.flip(img0, 1)  # 翻转 0表示上下，正数表示左右，负数表示上下左右都翻转
+        imgf = cv2.flip(img0, 1)
         H, W, C = img0.shape
 
-        # 读取target数据
         sort = random.sample(range(1, target_num), 1)[0]
         target_path = target_labels[sort][0]
         target_fn = os.path.join(in_files + target_path)
         target_img0 = cv2.imread(target_fn)
 
-        # 网络预测
         keyPoints0 = inference(net=net,
                                source_img=img0,
                                target_img=target_img0,
@@ -306,11 +287,11 @@ if __name__ == "__main__":
                                resize_h=resize_h,
                                num_points=num_points)
 
-        # 图推理
+        # infer_graph
         pred = graph_inference(GraphNet, keyPoints0, keyPoints_f, num_points)
         # print(pred)
 
-        # 保存图像
+        # save
         img_0 = draw_relation2(img0, keyPoints0, relation)
         img_f = draw_relation2(imgf, keyPoints_f, relation)
         searchContext1 = '/'
@@ -323,66 +304,5 @@ if __name__ == "__main__":
         cv2.imwrite(save_name, img_0)
         cv2.imwrite(save_name_f, img_f)
 
-        # 读取标签，评估精度
-        searchContext2 = '_'
-        for n in range(num_points):
-            numList = [m.start() for m in re.finditer(searchContext2, labels[k][n + 3])]
-            point = [int(labels[k][n + 3][0:numList[0]]),
-                     int(labels[k][n + 3][numList[0] + 1:numList[1]])]
-            # resize
-            point_resize = point
-            point_resize[0] = point[0] * (resize_w / W)
-            point_resize[1] = point[1] * (resize_h / H)
-            points_all_gt[k - 1, n, :] = point_resize
-        # 读取box信息
-        numList = [m.start() for m in re.finditer(searchContext2, labels[k][2])]
-        box = [int(labels[k][2][0:numList[0]]), int(labels[k][2][numList[0] + 1:numList[1]]),
-               int(labels[k][2][numList[1] + 1:numList[2]]), int(labels[k][2][numList[2] + 1:])]
-        box_resize = []
-        box_resize.append(box[0] * (resize_w / W))
-        box_resize.append(box[1] * (resize_h / H))
-        box_resize.append(box[2] * (resize_w / W))
-        box_resize.append(box[3] * (resize_h / H))
-        box_resize = np.array(box_resize)
-        points_all_gt[k - 1, num_points, :] = box_resize[0:2]
-        points_all_gt[k - 1, num_points + 1, :] = box_resize[2:4]
-        # print(labels[k][2], box, box_resize)
-
-        points_all_pred[k - 1, :, :] = keyPoints0
-        # print('pred:', points_all_pred, '   gt:', points_all_gt)
-
     time_mean = time_all / imgs_num
     print('mean time:', time_mean)
-    # 保存标签和结果
-    Save_result = out_files + 'results.mat'
-    sio.savemat(Save_result, {'points_all_gt': points_all_gt, 'points_all_pred': points_all_pred})
-
-    mask = np.ones([imgs_num - 1, num_points])
-    thr = 0.5
-    normalize = np.full([imgs_num - 1, 2], 20, dtype=np.float32)
-
-    # pck_mine
-    pred_name = out_files + 'points_all_pred.npy'
-    gt_name = out_files + 'points_all_gt.npy'
-    np.save(pred_name, points_all_pred)
-    np.save(gt_name, points_all_gt)
-
-    thr = np.linspace(0, 1, 101)
-    mean_all = np.ones(101)
-    for i in range(101):
-        mean_points, var_points, mean_all[i], var_all = PCK_metric_box(points_all_pred, points_all_gt, 19, 20, thr[i])
-        if thr[i] == 0.05:
-            print('pck_points_mean:', mean_points)
-            print('pck_points_val:', var_points)
-            print('pck_all_mean:', mean_all[i], '    pck_all_val:', var_all)
-    np.save(out_files + 'pck_mean101_' + curve_name + '.npy', mean_all)
-    plt.plot(thr, mean_all, color='b')  # 绘制loss曲线
-    plt.xlabel("normalized distance", fontsize=12)
-    plt.ylabel("PCK", fontsize=12)
-    plt.savefig(out_files + 'pcks_101' + curve_name + '.jpg')
-    # print('PCK_mean_all:', mean_all)
-
-    # 计算AP值
-    OKS = cal_OKS(points_all_pred, points_all_gt, sigmas=0.055)
-    AP, AP50, AP75 = cal_AP(OKS)
-    print('  AP50:', AP50, ' AP75:', AP75, 'mAP:', AP, 'OKS:', np.mean(OKS))
