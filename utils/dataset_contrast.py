@@ -59,21 +59,20 @@ def CenterLabelHeatMapResize(img_height, img_width, c_x, c_y, resize_h, resize_w
 
 
 def box2map(Img):  # https://blog.csdn.net/qq_30154571/article/details/109557559
-    gray = cv2.cvtColor(Img, cv2.COLOR_BGR2GRAY)  # 灰度化
+    gray = cv2.cvtColor(Img, cv2.COLOR_BGR2GRAY)
 
-    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)  # 二值化
+    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     kernel = np.ones((1, 1), np.uint8)
-    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)  # 去噪
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
 
-    dist_transform = cv2.distanceTransform(opening, 1, 5)  # 转为热力图
-    # blur = cv2.blur(dist_transform, (5, 5))  # 模糊化
+    dist_transform = cv2.distanceTransform(opening, 1, 5)
+    # blur = cv2.blur(dist_transform, (5, 5))
     # alpha = 255 / (blur.max())
     return dist_transform
 
 
 def box2patch(Image, Annotation, resizeW, resizeH):
-    # 裁剪box内部分
     H, W, C = Image.shape
     # Image = cv2.resize(Image, (resizeW, resizeH))
     temp = np.zeros([resizeH, resizeW])
@@ -88,7 +87,7 @@ def box2patch(Image, Annotation, resizeW, resizeH):
     patch = Image[min(lu_y0, rb_y0):max(lu_y0, rb_y0), min(lu_x0, rb_x0):max(lu_x0, rb_x0), :]
     temp[min(lu_y0, rb_y0):max(lu_y0, rb_y0), min(lu_x0, rb_x0):max(lu_x0, rb_x0)] = box2map(patch)
 
-    blur = cv2.blur(temp, (3, 3))  # 模糊化
+    blur = cv2.blur(temp, (3, 3))
     alpha = 255 / (blur.max())
     blur = blur * alpha
     # cv2.imshow('img_new', Image)
@@ -100,30 +99,29 @@ def box2patch(Image, Annotation, resizeW, resizeH):
 
 
 def AugImg(Img, resize):
-    # 对图像按目标尺寸进行resize和padding，并且将标签也进行对应变换 resize = [H, W]
     h, w, _ = Img.shape
-    if max([h, w]) == w:   # 按w对齐
+    if max([h, w]) == w:
         res_2 = int(h * (resize[1] / w))
         Img = cv2.resize(Img, (resize[1], res_2))
         padding_l = int((resize[0] - res_2) / 2)
-        Img = cv2.copyMakeBorder(Img, padding_l, padding_l, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0))  # 上下填充0
+        Img = cv2.copyMakeBorder(Img, padding_l, padding_l, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0))
 
-    else:   # 按h对齐
+    else:
         res_2 = int(w * (resize[0] / h))
         Img = cv2.resize(Img, (res_2, resize[0]))
         padding_l = int((resize[1] - res_2) / 2)
-        Img = cv2.copyMakeBorder(Img, 0, 0, padding_l, padding_l, cv2.BORDER_CONSTANT, value=(0, 0, 0))  # 左右填充0
+        Img = cv2.copyMakeBorder(Img, 0, 0, padding_l, padding_l, cv2.BORDER_CONSTANT, value=(0, 0, 0))
 
     return Img
 
 
 def Trans_point(p, h, w, resize):
-    if max([h, w]) == w:  # 按w对齐
+    if max([h, w]) == w:
         res_2 = int(h * (resize[1] / w))
         padding_l = int((resize[0] - res_2) / 2)
         p[0] = int(p[0] * (resize[1] / w))  # x
         p[1] = int(p[1] * (resize[1] / w) + padding_l)  # y
-    else:  # 按h对齐
+    else:
         res_2 = int(w * (resize[0] / h))
         padding_l = int((resize[1] - res_2) / 2)
         p[0] = int(p[0] * (resize[0] / h) + padding_l)  # x
@@ -146,7 +144,7 @@ class Dataset_contrast(Dataset):
             reader_source = csv.reader(f)
             self.labels_source = list(reader_source)
             print('len', len(self.labels_source))
-            self.namelist_source = []  # 存放每个图片第一行标签在labels中的行序号，长度为图像数
+            self.namelist_source = []
             img_sort = 1
             trainset_num = len(self.labels_source)
 
