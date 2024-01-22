@@ -18,7 +18,7 @@ Le Han<sup>1*</sup>, &nbsp;
 
 ## 📖 Description
 To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on weakly supervised domain transfer.
-1. A contrastive learning framework based on Transformer was constructed for pre-training, and the Source (providing Keypoints label) and Target (providing Center label) data features were learned.
+1. A contrastive learning framework based on Transformer was constructed for pre-training, and the Source (providing Keypoints label) and Target (without annotations) data features were learned.
 
 2. The initial pseudo-labels were filtered from the Target data based on graph contrastive learning.
 
