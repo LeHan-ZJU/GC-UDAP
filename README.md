@@ -35,15 +35,15 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 
 - [ Done] Pseudo-label underselection Module with Graph Contrastive Learning
 
-- [ Done] Prepare datasets (Rat_Done, people_Done, TigDog_Done, AP-10K)
+- [ Done] Prepare datasets (Rat_Done, TigDog_Done, AP-10K_Done)
 
 - [ Done] Transfer learning
 
 - [ Done] Graph constraint
   
-- [2023.12.30] Revise the paper
+- [Done] Revise the paper
 
-- [2024.1.5] Submit to IJCAI2024
+- [Done] Submit to IJCAI2024
 
 
 ## 🖼️ Results
