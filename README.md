@@ -19,14 +19,6 @@ Le Han<sup>1*</sup>, &nbsp;
 ## 📖 Description
 We propose an unsupervised domain adaptation model, named GC-UDAP, for animal pose estimation, leveraging skeleton graph constraints. This model addresses the challenges of performance degradation due to varying animal data scenes and the limited availability of labeled data.
 
-1. A contrastive learning framework based on Transformer was constructed for pre-training, and the Source (providing Keypoints label) and Target (without annotations) data features were learned.
-
-2. The initial pseudo-labels were filtered from the Target data based on graph contrastive learning.
-
-3. Domain Adaptation training is performed on the pre-trained pose estimation module according to the pseudo-labels, and the pseudo-labels are iteratively optimized during the training process. Besides, we design a Object-Specific Feature Align (OSFA) module to learn the related part, which is the object area, between the source and target domain.
-   
-4. A self-supervised training part based on graph contraintion is proposed to fully utilize the target domain data without pseudo-labels. 
-
 
 ## 🗓️ TODO
 - [ Done] Contrastive learning based pre-training part 
