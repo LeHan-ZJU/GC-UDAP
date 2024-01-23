@@ -8,7 +8,7 @@ Le Han<sup>1*</sup>, &nbsp;
  <sup>1</sup>[Zhejiang University](https://www.zju.edu.cn/english/), &nbsp;
  </div>
  <p align="center">
-  <img width="409" height="185" src="./figs/intro.png">
+  <img width="614" height="278" src="./figs/intro.png">
 </p>
  
  ## 🚀 Overview
