@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h1> GC-UDAP: Graph-Constraints based Unsupervised Domain Adaptation for Pose Estimation </h1>
+<h1> GC-UDAP: Graph Constraints based Unsupervised Domain Adaptation for Animal Pose Estimation </h1>
 Le Han<sup>1*</sup>, &nbsp;
  
  <sup>1</sup>[Zhejiang University](https://www.zju.edu.cn/english/), &nbsp;
