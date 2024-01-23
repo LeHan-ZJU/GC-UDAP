@@ -17,7 +17,8 @@ Le Han<sup>1*</sup>, &nbsp;
 </p>
 
 ## 📖 Description
-To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on weakly supervised domain transfer.
+We propose an unsupervised domain adaptation model, named GC-UDAP, for animal pose estimation, leveraging skeleton graph constraints. This model addresses the challenges of performance degradation due to varying animal data scenes and the limited availability of labeled data.
+
 1. A contrastive learning framework based on Transformer was constructed for pre-training, and the Source (providing Keypoints label) and Target (without annotations) data features were learned.
 
 2. The initial pseudo-labels were filtered from the Target data based on graph contrastive learning.
