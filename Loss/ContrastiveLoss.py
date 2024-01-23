@@ -29,7 +29,6 @@ class self_contrative_meanloss(torch.nn.Module):
     def forward(self, pred1, pred2, gt1, gt2, self_supvision):
         loss = 0
         B = pred1.shape[0]
-        return_loss = np.zeros(3)
         for i in range(B):
             # If samples are from a target subset with pseudo-labels and the source dataset, the mean squared error (MSE) is computed.
             if self_supvision[i][0] == 1:     
@@ -38,14 +37,11 @@ class self_contrative_meanloss(torch.nn.Module):
                 l2 = self.mse(pred1[i, :, :, :], pred2[i, :, :, :])
                 self_loss = torch.mul(l2, torch.exp(-GraphScore))
                 loss = loss + self_loss
-                return_loss[0] = self_loss.item()
-            
+                            
             # If samples are from a target subset without pseudo-labels, training is guided by computing graph constraints.
             else:
                 loss1 = self.mse(pred1, gt1)
                 loss2 = self.mse(pred2, gt2)
                 loss = loss + loss1 + loss2
-                return_loss[1:] = [loss1.item(), loss2.item()]
                 
-        return loss / B, return_loss
-
+        return loss / B
