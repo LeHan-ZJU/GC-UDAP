@@ -21,6 +21,7 @@ We propose an unsupervised domain adaptation model, named GC-UDAP, for animal po
 
 
 ## 🗓️ TODO
+- [ Done] Pre-training of pose estimation model
 - [ Done] Contrastive learning based pre-training part 
 <p align="center">
   <img width="730" height="480" src="./figs/cluster.png">
@@ -37,7 +38,6 @@ We propose an unsupervised domain adaptation model, named GC-UDAP, for animal po
 - [Done] Revise the paper
 
 - [Done] Submit to IJCAI2024
-
 
 ## 🖼️ Results
 QualitativeResults
