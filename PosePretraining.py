@@ -15,9 +15,7 @@ from Models.ContrastModel import ResSelf_pre
 
 from utils.dataset_csv import DatasetPoseCSV
 from torch.utils.data import DataLoader, random_split
-from thop import profile
-from torchstat import stat
-from torchsummaryX import summary
+
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 num_points = 6
@@ -151,7 +149,6 @@ def train_net(model,
         loss_all[0, epoch] = epoch + 1
         loss_all[1, epoch] = loss.item()
 
-        # if save_cp:
         if (epoch + 1) % 100 == 0:
             try:
                 os.mkdir(dir_checkpoint)
@@ -174,7 +171,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     args = get_args()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # device = torch.device('cpu')
     logging.info(f'Using device {device}')
     print(args.path_backbone)
     print('input_size:', resize_w, resize_h, ';  Augment:', args.augment)
@@ -186,7 +182,6 @@ if __name__ == '__main__':
         os.makedirs(args.ckp)
 
     net = ResSelf_pre(args, extract_list, device, train=True, nof_joints=num_points)
-    stat(net, input_size=(3, 640, 480))
 
     if args.load:
         print(args.load)
