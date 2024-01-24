@@ -11,9 +11,6 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 - [ Done] Prepare datasets (Rat_Done, TigDog_Done, AP-10K_Done)
 
 - [ Done] Construct the pose estimation model and pre-training 
-<p align="center">
-  <img width="730" height="480" src="./figs/cluster.png">
-</p>
 
 - [ Done] Construct Skeleton-Graph Contrastive Learning model
 
@@ -26,7 +23,6 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 - [ Done] Revise the paper
 
 - [ Done] Submit to IJCAI2024
-
 
 ## 🎫 License
 
