@@ -8,7 +8,6 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from Tools.process import rotate_img
-from Tools.tools_graph import rotate_coordinates
 import logging
 from PIL import Image
 
@@ -53,40 +52,35 @@ def CenterLabelHeatMapResize(img_height, img_width, c_x, c_y, resize_h, resize_w
 
 
 def AugImg(Img, resize):
-    # 对图像按目标尺寸进行resize和padding，并且将标签也进行对应变换 resize = [H, W]
+    # Apply resize and padding to the image according to the target size, and transform the label accordingly resize = [H, W]
     h, w, _ = Img.shape
-    wr = w * (resize[0] / h)    # 若按h进行resize，则得到的宽度应该为wr
-    # hr = h * (resize[1] / w)  # 若按w进行resize，则得到的高度应该为hr
-    # if max([h, w]) == w:  # 按w对齐
+    wr = w * (resize[0] / h)
     if wr > resize[1]:
-    # if max([h, w]) == w:   # 按w对齐
         res_2 = int(h * (resize[1] / w))
         Img = cv2.resize(Img, (resize[1], res_2))
         padding_l = int((resize[0] - res_2) / 2)
         if padding_l > 0:
-            Img = cv2.copyMakeBorder(Img, padding_l, padding_l, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0))  # 上下填充0
+            Img = cv2.copyMakeBorder(Img, padding_l, padding_l, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0)) 
 
-    else:   # 按h对齐
+    else:
         res_2 = int(w * (resize[0] / h))
         Img = cv2.resize(Img, (res_2, resize[0]))
         padding_l = int((resize[1] - res_2) / 2)
         if padding_l > 0:
-            Img = cv2.copyMakeBorder(Img, 0, 0, padding_l, padding_l, cv2.BORDER_CONSTANT, value=(0, 0, 0))  # 左右填充0
+            Img = cv2.copyMakeBorder(Img, 0, 0, padding_l, padding_l, cv2.BORDER_CONSTANT, value=(0, 0, 0)) 
 
     return Img
 
 
 def Trans_point(p, h, w, resize):
     if min(p) > 0:
-        wr = w * (resize[0] / h)  # 若按h进行resize，则得到的宽度应该为wr
-        # hr = h * (resize[1] / w)  # 若按w进行resize，则得到的高度应该为hr
-        # if max([h, w]) == w:  # 按w对齐
+        wr = w * (resize[0] / h)
         if wr > resize[1]:
             res_2 = int(h * (resize[1] / w))
             padding_l = int((resize[0] - res_2) / 2)
             p[0] = int(p[0] * (resize[1] / w))  # x
             p[1] = int(p[1] * (resize[1] / w) + padding_l)  # y
-        else:  # 按h对齐
+        else:
             res_2 = int(w * (resize[0] / h))
             padding_l = int((resize[1] - res_2) / 2)
             p[0] = int(p[0] * (resize[0] / h) + padding_l)  # x
