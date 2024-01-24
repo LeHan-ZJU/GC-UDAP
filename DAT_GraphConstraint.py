@@ -95,7 +95,7 @@ def train_net(model,
               augment=0,
               angle=math.pi):
 
-    dataset = DatasetStage2_iteration(resize_w, resize_h, dir_img, source_label, target_label, target_unlabel, num_points, scale=4, angle=angle)
+    dataset = Dataset_DAT(resize_w, resize_h, dir_img, source_label, target_label, target_unlabel, num_points, scale=4, angle=angle)
     n_val = int(len(dataset) * val_percent)
     n_train = len(dataset) - n_val
     train, val = random_split(dataset, [n_train, n_val])
