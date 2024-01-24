@@ -16,7 +16,7 @@ from Models.eval_pose import eval_net_s2_update
 from Models.ContrastModel import ContrastNet1_MultiA
 from Loss.ContrastiveLoss import self_contrative_loss, self_contrative_meanloss
 
-from utils.dataset_csv import DatasetStage2_iteration
+from utils.dataset_csv import Dataset_DAT
 from torch.utils.data import random_split
 
 torch.distributed.init_process_group(backend="nccl")
@@ -170,7 +170,7 @@ def train_net(model,
             print("save model. val_score = ", val_score)
             torch.save(model.module.state_dict(), dir_checkpoint + f'CP_best.pth')
             torch.save(model.module.SubResnet.state_dict(), dir_checkpoint + f'Resnet50_best.pth')
-            torch.save(model.module.TransformerPart.state_dict(), dir_checkpoint + f'TransformerPart_best.pth')
+            torch.save(model.module.FeatureAlignment.state_dict(), dir_checkpoint + f'FeatureAlignment_best.pth')
             torch.save(model.module.PoseHead.state_dict(), dir_checkpoint + f'PoseHead_best.pth')
             print('Best epoch:', epoch + 1)
 
@@ -186,8 +186,8 @@ def train_net(model,
                        dir_checkpoint + f'CP_epoch{epoch + 1}.pth')
             torch.save(model.module.SubResnet.state_dict(),
                        dir_checkpoint + f'Resnet50_epoch{epoch + 1}.pth')
-            torch.save(model.module.TransformerPart.state_dict(),
-                       dir_checkpoint + f'TransformerPart_epoch{epoch + 1}.pth')
+            torch.save(model.module.FeatureAlignment.state_dict(),
+                       dir_checkpoint + f'FeatureAlignment_epoch{epoch + 1}.pth')
             torch.save(model.module.PoseHead.state_dict(),
                        dir_checkpoint + f'PoseHead_epoch{epoch + 1}.pth')
             logging.info(f'Checkpoint {epoch + 1} saved !')
