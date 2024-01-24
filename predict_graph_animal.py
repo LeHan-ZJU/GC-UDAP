@@ -34,8 +34,6 @@ def get_args():
     parser.add_argument('-b', '--batch', metavar='B', type=int, nargs='?', default=1, help='Batch size', dest='batch')
     parser.add_argument('-n', '--num_points', metavar='N', type=int, default=6,
                         help='Number of keypoints', dest='num_points')
-    parser.add_argument('-n2', '--num_points2', metavar='N', type=int, default=6,
-                        help='Number of keypoints', dest='num_points2')
 
     parser.add_argument('--graph_model', '-g', metavar='FILE', default='./TrainedGCL/model.pth',
                         help="path of the trained SGCL model")
