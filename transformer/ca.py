@@ -62,12 +62,7 @@ class Encoder(nn.Module):
 
     def forward(self, x_im, x_sk, mask):
         for layer1, layer2 in zip(self.layer1, self.layer2):
-            # 在此交换Q
-            # layer1 处理 sk
-            # x_sk1 = layer1(x_sk, x_im, x_sk, mask)  # 三个输入顺序：QKV ?
             x_sk1 = layer1(x_im, x_sk, x_sk, mask)
-            # layer2 处理im
-            # x_im = layer2(x_im, x_sk, x_im, mask)
             x_im = layer2(x_sk, x_im, x_im, mask)
             x_sk = x_sk1
         return x_im, x_sk
@@ -83,13 +78,8 @@ class Encoder2(nn.Module):
 
     def forward(self, x_im, x_sk, mask):
         for layer1, layer2 in zip(self.layer1, self.layer2):
-            # 在此交换Q
-            # layer1 处理 sk
-            x_sk1 = layer1(x_sk, x_im, x_im, mask)  # 三个输入顺序：QKV ?
-            # x_sk1 = layer1(x_im, x_sk, x_sk, mask)
-            # layer2 处理im
+            x_sk1 = layer1(x_sk, x_im, x_im, mask)
             x_im = layer2(x_im, x_sk, x_sk, mask)
-            # x_im = layer2(x_sk, x_im, x_im, mask)
             x_sk = x_sk1
         return x_im, x_sk
 
@@ -104,14 +94,7 @@ class Encoder_self(nn.Module):
 
     def forward(self, x_im, mask):
         for layer1, layer2 in zip(self.layer1, self.layer2):
-            # 在此交换Q
-            # layer1 处理 sk
-            # x_sk1 = layer1(x_sk, x_im, x_sk, mask)  # 三个输入顺序：QKV ?
-            # x_sk1 = layer1(x_im, x_sk, x_sk, mask)
-            # layer2 处理im
-            # x_im = layer2(x_im, x_sk, x_im, mask)
             x_im = layer1(x_im, x_im, x_im, mask)
-            # x_sk = x_sk1
         return x_im
 
 
@@ -176,10 +159,6 @@ class MultiHeadedAttention(nn.Module):
 
 
 class PositionwiseFeedForward(nn.Module):
-    """
-    d_model = 512
-    d_ff = 2048 为论文中数值
-    """
 
     def __init__(self, d_model, d_ff, dropout=0.1):
         super(PositionwiseFeedForward, self).__init__()
@@ -189,46 +168,6 @@ class PositionwiseFeedForward(nn.Module):
 
     def forward(self, x):
         return self.w_2(self.dropout(F.relu(self.w_1(x))))
-
-
-class Cross_Attention(nn.Module):
-    def __init__(self, args, h=8, n=1, d_model=768, d_ff=1024, dropout=0.1):
-        super(Cross_Attention, self).__init__()
-        self.args = args
-        self.batch = args.batch
-        multi_head_attention = MultiHeadedAttention(h, d_model)
-        ffn = PositionwiseFeedForward(d_model, d_ff, dropout)
-        encoderLayer = EncoderLayer(d_model, multi_head_attention, ffn, dropout)
-        self.encoder = Encoder(encoderLayer, n)
-
-    def forward(self, x):
-        length = x.size(0)
-        x_sk = x[:length // 2]
-        x_im = x[length // 2:]
-        x_im, x_sk = self.encoder(x_im, x_sk, None)  # 不要mask
-        return torch.cat((x_sk, x_im), dim=0)
-
-
-class Multi_Attention(nn.Module):
-    def __init__(self, args, h=8, n=1, d_model=768, d_ff=1024, dropout=0.1):
-        super(Multi_Attention, self).__init__()
-        self.args = args
-        self.batch = args.batch
-        multi_head_attention = MultiHeadedAttention(h, d_model)
-        ffn = PositionwiseFeedForward(d_model, d_ff, dropout)
-        encoderLayer = EncoderLayer(d_model, multi_head_attention, ffn, dropout)
-        self.encoder = Encoder(encoderLayer, n)
-        self.encoder_self = Encoder_self(encoderLayer, n)
-
-    def forward(self, x):
-        length = x.size(0)
-        x_sk = x[:length // 2]
-        x_im = x[length // 2:]
-        x_sk_self = self.encoder_self(x_sk, None)
-        x_im_self = self.encoder_self(x_im, None)
-        x_im_cross, x_sk_cross = self.encoder(x_im, x_sk, None)  # 不要mask
-        # return x_sk_cross, x_sk_self, x_im_cross, x_im_self
-        return torch.cat((x_sk_cross, x_im_cross), dim=0), torch.cat((x_sk_self, x_im_self), dim=0)
 
 
 class Multi_Attention2(nn.Module):
@@ -248,28 +187,6 @@ class Multi_Attention2(nn.Module):
         x_im = x[length // 2:]
         x_sk_self = self.encoder_self(x_sk, None)
         x_im_self = self.encoder_self(x_im, None)
-        x_im_cross, x_sk_cross = self.encoder(x_im, x_sk, None)  # 不要mask
+        x_im_cross, x_sk_cross = self.encoder(x_im, x_sk, None)
         # return x_sk_cross, x_sk_self, x_im_cross, x_im_self
         return torch.cat((x_sk_cross, x_im_cross), dim=0), torch.cat((x_sk_self, x_im_self), dim=0)
-
-
-class Multi_Attention2_noCA(nn.Module):
-    def __init__(self, args, h=8, n=1, d_model=768, d_ff=1024, dropout=0.1):
-        super(Multi_Attention2_noCA, self).__init__()
-        self.args = args
-        self.batch = args.batch
-        multi_head_attention = MultiHeadedAttention(h, d_model)
-        ffn = PositionwiseFeedForward(d_model, d_ff, dropout)
-        encoderLayer = EncoderLayer(d_model, multi_head_attention, ffn, dropout)
-        # self.encoder = Encoder2(encoderLayer, n)
-        self.encoder_self = Encoder_self(encoderLayer, n)
-
-    def forward(self, x):
-        length = x.size(0)
-        x_sk = x[:length // 2]
-        x_im = x[length // 2:]
-        x_sk_self = self.encoder_self(x_sk, None)
-        x_im_self = self.encoder_self(x_im, None)
-        # x_im_cross, x_sk_cross = self.encoder(x_im, x_sk, None)  # 不要mask
-        # return x_sk_cross, x_sk_self, x_im_cross, x_im_self
-        return torch.cat((x_sk_self, x_im_self), dim=0)
