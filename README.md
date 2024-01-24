@@ -10,6 +10,7 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 
 ## 🗓️ TODO
 - [ Done] Prepare datasets (UDAP9.4K_Done, TigDog_Done, AP-10K_Done)
+- 
           The created dataset UDAP9.4K will be released with the article.
 
 - [ Done] Construct the pose estimation model and pre-training 
