@@ -2,51 +2,30 @@
 
 <div align="center">
 
-<h1> GC-UDAP: Graph Constraints based Unsupervised Domain Adaptation for Animal Pose Estimation </h1>
-Le Han<sup>1*</sup>, &nbsp;
- 
- <sup>1</sup>[Zhejiang University](https://www.zju.edu.cn/english/), &nbsp;
- </div>
- <p align="center">
-  <img width="614" height="278" src="./figs/intro.png">
-</p>
- 
- ## 🚀 Overview
-<p align="center">
-  <img src="./figs/architecture.png">
-</p>
+<h1> GC-UDAP: Graph-Constraints based Unsupervised Domain Adaptation for Pose Estimation </h1>
 
 ## 📖 Description
-We propose an unsupervised domain adaptation model, named GC-UDAP, for animal pose estimation, leveraging skeleton graph constraints. This model addresses the challenges of performance degradation due to varying animal data scenes and the limited availability of labeled data.
-
+To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on weakly supervised domain transfer.
 
 ## 🗓️ TODO
-- [ Done] Pre-training of pose estimation model
-- [ Done] Contrastive learning based pre-training part 
+- [ Done] Prepare datasets (Rat_Done, TigDog_Done, AP-10K_Done)
+
+- [ Done] Construct the pose estimation model and pre-training 
 <p align="center">
   <img width="730" height="480" src="./figs/cluster.png">
 </p>
 
-- [ Done] Pseudo-label underselection Module with Graph Contrastive Learning
+- [ Done] Construct Skeleton-Graph Contrastive Learning model
 
-- [ Done] Prepare datasets (Rat_Done, TigDog_Done, AP-10K_Done)
+- [ Done] Graph Constraint implementation
 
-- [ Done] Transfer learning
+- [ Done] Domain Adaptation Training
 
-- [ Done] Graph constraint
+- [ Done] Experiments
   
-- [Done] Revise the paper
+- [ Done] Revise the paper
 
-- [Done] Submit to IJCAI2024
-
-## 🖼️ Results
-QualitativeResults
-<p align="center">
-  <img src="./figs/QualitativeResults.jpg">
-</p>
-
-
-## 💻 Useage
+- [ Done] Submit to IJCAI2024
 
 
 ## 🎫 License
