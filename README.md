@@ -3,7 +3,7 @@
 <div align="center">
 
 <h1> GC-UDAP: Graph-Constraints based Unsupervised Domain Adaptation for Pose Estimation </h1>
-
+ </div>
 ## 📖 Description
 To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on weakly supervised domain transfer.
 
