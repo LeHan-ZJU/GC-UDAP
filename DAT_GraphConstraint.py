@@ -48,7 +48,7 @@ def get_args():
                         help='Number of epochs', dest='epochs')
     parser.add_argument('-b', '--batch', metavar='B', dest='batch', type=int, nargs='?', default=6, 
                         help='Batch size')
-    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=1e-5, dest='lr',
+    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=1e-4, dest='lr',
                         help='Learning rate')
     parser.add_argument('-f', '--load', dest='load', type=str, default=False, 
                         help='Load model from a .pth file')
@@ -100,10 +100,10 @@ def train_net(model,
     n_train = len(dataset) - n_val
     train, val = random_split(dataset, [n_train, n_val])
     train_sampler = torch.utils.data.distributed.DistributedSampler(train)
-    train_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=8,
+    train_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=40,
                                                pin_memory=True, sampler=train_sampler)
     val_sampler = torch.utils.data.distributed.DistributedSampler(val)
-    val_loader = torch.utils.data.DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=8,
+    val_loader = torch.utils.data.DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=40,
                                              pin_memory=True, sampler=val_sampler)
 
     global_step = 0
