@@ -6,7 +6,7 @@
  </div>
  
 ## 📖 Description
-To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on weakly supervised domain transfer.
+To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on unsupervised domain transfer.
 
 ## 🗓️ TODO
 - [ Done] Prepare datasets (UDAP9.4K_Done, TigDog_Done, AP-10K_Done)
