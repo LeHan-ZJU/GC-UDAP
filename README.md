@@ -9,10 +9,8 @@
 To extend the model to the simulated scenario of unlabeled data, we propose a keypoint prediction method based on unsupervised domain transfer.
 
 ## 🗓️ TODO
-- [ Done] Prepare datasets (UDAP9.4K_Done, TigDog_Done, AP-10K_Done)
+- [ Done] Prepare datasets (UDAP_Done, TigDog_Done, AP-10K_Done)
  
-          The created dataset UDAP9.4K will be released with the article.
-
 - [ Done] Construct the pose estimation model and pre-training 
 
 - [ Done] Construct Skeleton-Graph Contrastive Learning model
@@ -24,8 +22,6 @@ To extend the model to the simulated scenario of unlabeled data, we propose a ke
 - [ Done] Experiments
   
 - [ Done] Revise the paper
-
-- [ Done] Submit to IJCAI2024
 
 ## 🎫 License
 
