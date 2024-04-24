@@ -191,7 +191,7 @@ def gen_sample_bNoise(points, w, h, length, rate_p, rate_n):
     return points
 
 
-def gcn_dataset_rat(dir_label, dir_img, num_points, noise_p, noise_n):
+def gcn_dataset_animal(dir_label, dir_img, num_points, noise_p, noise_n):
     data_list =[]
     # read csv
     with open(dir_label, 'r', encoding='gb18030') as f:
@@ -200,11 +200,11 @@ def gcn_dataset_rat(dir_label, dir_img, num_points, noise_p, noise_n):
         print('len', len(labels))
         trainset_num = len(labels)
 
+    edge_index = read_edge_index(num_points)
     for i in range(1, trainset_num):
         index1 = i
         x = np.zeros([8, num_points * 2])
 
-        edge_index = read_edge_index(num_points)
         height, width, length, points1, img1 = read_data(labels, dir_img, num_points, index1)
         points1 = gen_sample_sNoise(points1, width, height, length, rate_p=noise_p)
 
