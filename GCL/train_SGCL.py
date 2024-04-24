@@ -7,7 +7,7 @@ from torch_geometric.loader import DataLoader
 
 import matplotlib.pyplot as plt
 from GCL.gcn import Net
-from GCL.dataset_gcn_animal import gcn_dataset_rat
+from GCL.dataset_gcn_animal import gcn_dataset_animal
 
 
 def get_args():
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     if not isExists:
         os.makedirs(args.ckp)
 
-    dataset = gcn_dataset_rat(args.label, args.Imgs, args.num_points, noise_p=0.0005, noise_n=0.2)
+    dataset = gcn_dataset_animal(args.label, args.Imgs, args.num_points, noise_p=0.0005, noise_n=0.2)
     train_dataset = dataset[:int(len(dataset) * (1 - args.val / 100))]
     val_dataset = dataset[int(len(dataset) * (1 - args.val / 100)):]
     train_loader = DataLoader(train_dataset, batch_size=args.batchsize, shuffle=True)
